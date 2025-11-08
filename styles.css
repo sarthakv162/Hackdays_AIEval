@@ -1,6 +1,6 @@
 /* Base layout */
 body {
-    background-color: #e2edff;
+    background-color: #7698ce;
     font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
 }
 
@@ -80,3 +80,4 @@ button:hover,
     font-size: 0.95rem;
     font-weight: 400;
 }
+
