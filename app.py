@@ -10,7 +10,7 @@ import google.generativeai as genai
 
 # ------------------ Streamlit Setup ------------------
 st.set_page_config(page_title="AIEval - DTU Assignment Evaluator", layout="wide")
-st.title("📘 AIEval - DTU Assignment Evaluator")
+st.title(" AIEval - DTU Assignment Evaluator")
 st.caption("Upload assignment submission and answer key to auto-evaluate using Gemini")
 
 # ------------------ Tabs ------------------
@@ -241,3 +241,4 @@ with tab2:
         )
     else:
         st.info("No evaluations yet. Submit an assignment to begin.")
+
