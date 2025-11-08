@@ -8,16 +8,14 @@ from docx import Document
 import pdfplumber
 import google.generativeai as genai
 
-# ------------------ Streamlit Setup ------------------
+#Setup
 st.set_page_config(page_title="AIEval - DTU Assignment Evaluator", layout="wide")
 st.title(" AIEval - DTU Assignment Evaluator")
 st.caption("Upload assignment submission and answer key to auto-evaluate using Gemini")
 
-# ------------------ Tabs ------------------
 tab1, tab2 = st.tabs([" Evaluate", " Dashboard"])
 results = []
 
-# ------------------ Helper Functions ------------------
 def extract_text_from_file(file_path):
     if file_path.name.endswith(".docx"):
         doc = Document(file_path)
@@ -156,17 +154,22 @@ Reason: <brief explanation>
         return f"Error: {e}"
 
 def adjust_score_for_ai(score_text, ai_verdict, penalty=5):
-    match = re.search(r"Score:\s*(\d+)/10", score_text)
+    match = re.search(r"Score:\s*(\d+(?:\.\d+)?)/10", score_text)
     if not match:
         return score_text
-    score = int(match.group(1))
-    adjusted = max(score - penalty, 0) if "AI-generated" in ai_verdict else score
-    result = re.sub(r"Score:\s*\d+/10", f"Score: {adjusted}/10", score_text)
+
+    score = float(match.group(1))
+
+    verdict_match = re.search(r"Verdict:\s*(Likely AI-generated)", ai_verdict, re.IGNORECASE)
+    is_ai_generated = bool(verdict_match)
+
+    adjusted = max(score - penalty, 0) if is_ai_generated else score
+    result = re.sub(r"Score:\s*\d+(?:\.\d+)?/10", f"Score: {adjusted}/10", score_text)
     if adjusted != score:
         result += f"\n(Note: -{penalty} penalty applied due to AI-generated suspicion.)"
     return result
 
-# ------------------ Evaluate Tab ------------------
+# Evaluate Tab 
 with tab1:
     student_file = st.file_uploader("Upload Student Assignment (.docx or .pdf)", type=["pdf", "docx"])
     answer_key_file = st.file_uploader("Upload Answer Key (.docx or .pdf)", type=["pdf", "docx"])
@@ -185,7 +188,6 @@ with tab1:
             full_text = text + "\n" + ocr
             questions = segment_by_questions(full_text)
 
-            # Extract student name
             student_name = extract_student_name(full_text)
 
             key_text = extract_text_from_file(answer_key_file)
@@ -226,7 +228,7 @@ with tab1:
                     "AI Verdict": ai_check.split('\n')[0].replace("Verdict: ", "")
                 })
 
-# ------------------ Dashboard Tab ------------------
+#  Dashboard Tab 
 with tab2:
     st.subheader(" Evaluated Results Dashboard")
     if results:
@@ -241,4 +243,5 @@ with tab2:
         )
     else:
         st.info("No evaluations yet. Submit an assignment to begin.")
+
 
