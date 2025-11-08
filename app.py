@@ -8,18 +8,14 @@ from docx import Document
 import pdfplumber
 import google.generativeai as genai
 
-# Setup
+#Setup
 st.set_page_config(page_title="AIEval - DTU Assignment Evaluator", layout="wide")
 st.title(" AIEval - DTU Assignment Evaluator")
 st.caption("Upload assignment submission and answer key to auto-evaluate using Gemini")
 
 tab1, tab2 = st.tabs([" Evaluate", " Dashboard"])
+results = []
 
-# Maintain results across sessions
-if "results" not in st.session_state:
-    st.session_state.results = []
-
-# Helper Functions
 def extract_text_from_file(file_path):
     if file_path.name.endswith(".docx"):
         doc = Document(file_path)
@@ -71,9 +67,12 @@ def segment_by_questions(text):
 def extract_student_name(text):
     prompt = f"""
 You are an intelligent assistant helping extract student details.
+
 From the following assignment submission content, extract only the **student's full name**. If no clear name is found, respond with "Anonymous".
+
 Text:
-{text[:1500]}
+{text[:1500]}  # Limiting to first 1500 characters to save token budget.
+
 Respond in format:
 Name: <full name or Anonymous>
 """
@@ -90,19 +89,32 @@ Name: <full name or Anonymous>
 def score_answer_with_gemini(q_num, q_text, model_ans, student_ans):
     prompt = f"""
 You are an experienced university examiner at DTU, evaluating technical assignment answers.
+
 Assess the student's answer by comparing it to the model answer provided by the professor. I want you to be strict, harsh cut marks wherever can
+
 Evaluation Criteria:
-- Conceptual correctness
-- Completeness
-- Relevance
-- Terminology and structure
+- Conceptual correctness (Has the core logic or explanation been captured?)
+- Completeness (Are most key points covered?)
+- Relevance (Does the answer stay on-topic and focused?)
+- Terminology and structure (Is the language appropriate for a university-level answer?)
+
+Be firm but fair:
+- Award partial marks for partially correct but relevant attempts.
+- Do not reward vague, generic, or irrelevant responses.
+- Slight leniency is allowed if the student shows understanding, even if the wording is different.
+
 ---
+
 Question {q_num}: {q_text}
-Model Answer:
+
+ Model Answer:
 {model_ans}
-Student Answer:
+
+ Student Answer:
 {student_ans}
+
 ---
+
 Return only:
 Score: X/10  
 Feedback: One clear, academic sentence justifying the score. Keep it objective and constructive.
@@ -115,16 +127,22 @@ Feedback: One clear, academic sentence justifying the score. Keep it objective a
 
 def detect_ai_generated_answer(student_answer, question_text):
     prompt = f"""
-You are an AI text detection expert.
-Based on the style, structure, and tone of the following student answer, judge whether it was likely written by a large language model or a human.
+You are an AI text detection expert. Think wisely before you mark it AI-generated or human-written
+
+Based on the style, structure, and tone of the following student answer, judge whether it was likely written by a large language model (like ChatGPT or Gemini) or a human.
+
 Question: {question_text}
+
 Answer:
 {student_answer}
+
 Respond with one of the following:
 - Likely AI-generated
 - Likely human-written
 - Uncertain
+
 Also provide a short justification.
+
 Format:
 Verdict: <one of the above>
 Reason: <brief explanation>
@@ -139,16 +157,19 @@ def adjust_score_for_ai(score_text, ai_verdict, penalty=5):
     match = re.search(r"Score:\s*(\d+(?:\.\d+)?)/10", score_text)
     if not match:
         return score_text
+
     score = float(match.group(1))
+
     verdict_match = re.search(r"Verdict:\s*(Likely AI-generated)", ai_verdict, re.IGNORECASE)
     is_ai_generated = bool(verdict_match)
+
     adjusted = max(score - penalty, 0) if is_ai_generated else score
     result = re.sub(r"Score:\s*\d+(?:\.\d+)?/10", f"Score: {adjusted}/10", score_text)
     if adjusted != score:
         result += f"\n(Note: -{penalty} penalty applied due to AI-generated suspicion.)"
     return result
 
-# Evaluate Tab
+# Evaluate Tab 
 with tab1:
     student_file = st.file_uploader("Upload Student Assignment (.docx or .pdf)", type=["pdf", "docx"])
     answer_key_file = st.file_uploader("Upload Answer Key (.docx or .pdf)", type=["pdf", "docx"])
@@ -183,50 +204,43 @@ with tab1:
             if missing:
                 st.warning("Unattempted Questions: " + ", ".join(sorted(missing)))
 
-            student_row = {"Student": student_name}
-            total_score = 0
-            remarks = []
-
             for q_num, ans in questions.items():
                 if not ans.strip() or len(ans.split()) < 10:
+                    st.info(f" Q{q_num} skipped: too short.")
                     continue
                 model_ans = model_answers.get(q_num)
                 if not model_ans:
+                    st.warning(f" Q{q_num} skipped: no model answer.")
                     continue
+
                 score_output = score_answer_with_gemini(q_num, f"Q{q_num}", model_ans, ans)
                 ai_check = detect_ai_generated_answer(ans, f"Q{q_num}")
                 adjusted_score = adjust_score_for_ai(score_output, ai_check)
-
-                score_match = re.search(r"Score:\s*(\d+(?:\.\d+)?)/10", adjusted_score)
-                verdict_match = re.search(r"Verdict:\s*(.*)", ai_check)
-                score_val = float(score_match.group(1)) if score_match else 0
-                verdict_text = verdict_match.group(1) if verdict_match else "Unknown"
-
-                student_row[f"Q{q_num}"] = f"{score_val} ({verdict_text})"
-                total_score += score_val
-                remarks.append(f"Q{q_num}: {verdict_text}")
 
                 st.markdown(f"---\n### Q{q_num}")
                 st.markdown(f"**Evaluation:**\n\n{adjusted_score.strip()}")
                 st.markdown(f"**AI Detection:**\n\n{ai_check.strip()}")
 
-            student_row["Total"] = round(total_score, 2)
-            student_row["Remarks"] = ", ".join(remarks)
+                results.append({
+                    "Student": student_name,
+                    "Question": f"Q{q_num}",
+                    "Score": adjusted_score.split('\n')[0].replace("Score: ", "").replace("/10", ""),
+                    "AI Verdict": ai_check.split('\n')[0].replace("Verdict: ", "")
+                })
 
-            st.session_state.results.append(student_row)
-
-# Dashboard Tab
+#  Dashboard Tab 
 with tab2:
-    st.subheader("\ud83d\udcca Evaluated Results Dashboard")
-    if st.session_state.results:
-        df = pd.DataFrame(st.session_state.results).fillna("N/A")
-        st.dataframe(df, use_container_width=True)
-        csv = df.to_csv(index=False).encode("utf-8")
+    st.subheader(" Evaluated Results Dashboard")
+    if results:
+        df = pd.DataFrame(results)
+        st.dataframe(df)
+        csv = df.to_csv(index=False).encode('utf-8')
         st.download_button(
-            label="\ud83d\udcc5 Download CSV",
+            label=" Download CSV",
             data=csv,
             file_name="student_evaluations.csv",
             mime="text/csv"
         )
     else:
         st.info("No evaluations yet. Submit an assignment to begin.")
+
