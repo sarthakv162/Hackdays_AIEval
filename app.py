@@ -14,7 +14,7 @@ with open("styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 st.title(" AIEval - DTU Assignment Evaluator")
-st.caption("Upload assignment submission and answer key to auto-evaluate using Gemini")
+st.caption("Upload assignment submission and answer key to auto-evaluate using AI")
 
 tab1, tab2 = st.tabs([" Evaluate", " Dashboard"])
 results = []
@@ -249,3 +249,4 @@ with tab2:
         )
     else:
         st.info("No evaluations yet. Submit an assignment to begin.")
+
