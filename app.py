@@ -13,14 +13,6 @@ st.set_page_config(page_title="AIEval - DTU Assignment Evaluator", layout="wide"
 with open("styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# Sidebar (visual)
-with st.sidebar:
-    st.image("https://upload.wikimedia.org/wikipedia/en/thumb/e/e5/Delhi_Technological_University_Logo.svg/512px-Delhi_Technological_University_Logo.svg.png", width=120)
-    st.title("AIEval")
-    st.markdown(" DTU AI Assignment Checker")
-    st.markdown(" Detect AI authorship\n Evaluate strictly\n Built using Gemini API")
-
-# Main layout
 st.title(" AIEval - DTU Assignment Evaluator")
 st.caption("Upload assignment submission and answer key to auto-evaluate using Gemini")
 
@@ -180,18 +172,6 @@ def adjust_score_for_ai(score_text, ai_verdict, penalty=5):
 
 # ------------------ Evaluate Tab ------------------
 with tab1:
-    st.markdown("""
-    <div style='background:#eef2ff; padding:20px; border-radius:10px; margin-top: 10px;'>
-    <h2 style='color:#1e3a8a;'>Welcome to AIEval </h2>
-    <p style='font-size:16px;'>Automatically evaluate assignments using Gemini AI with strict marking, AI-authorship detection, and visual feedback. Start by uploading the assignment and answer key below.</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    progress_steps = [" Upload", " Processing", " Scoring", " Results"]
-    st.markdown("###  Evaluation Progress")
-    for step in progress_steps:
-        st.markdown(f" {step}")
-
     student_file = st.file_uploader("Upload Student Assignment (.docx or .pdf)", type=["pdf", "docx"])
     answer_key_file = st.file_uploader("Upload Answer Key (.docx or .pdf)", type=["pdf", "docx"])
 
@@ -253,12 +233,6 @@ with tab1:
                     "Score": adjusted_score.split('\n')[0].replace("Score: ", "").replace("/10", ""),
                     "AI Verdict": ai_check.split('\n')[0].replace("Verdict: ", "")
                 })
-
-        st.markdown("###  Evaluation Rubric")
-        st.table({
-            "Criteria": ["Conceptual Accuracy", "Completeness", "Relevance", "Terminology"],
-            "Weight": ["4", "3", "2", "1"]
-        })
 
 # ------------------ Dashboard Tab ------------------
 with tab2:
