@@ -1,6 +1,6 @@
 /* Base layout */
 body {
-    background-color: #7698ce;
+    background-color: #f7f9fc;
     font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
 }
 
@@ -24,8 +24,7 @@ h1 {
 }
 
 /* Headings */
-h2,
-.stMarkdown h2 {
+h2, .stMarkdown h2 {
     color: #1e293b;
     font-size: 1.6rem;
     margin-top: 1.2em;
@@ -38,14 +37,13 @@ div[style*="background-color:#fff8dc"] {
     font-size: 1rem;
     color: #1f2937;
     border: 1px solid #e5e7eb;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     transition: all 0.3s ease;
 }
 
 /* Buttons */
-button,
-.stButton>button {
-    background-color: #709cf9 !important;
+button, .stButton>button {
+    background-color: #2563eb !important;
     color: white !important;
     border-radius: 8px !important;
     padding: 0.6em 1.2em !important;
@@ -54,16 +52,15 @@ button,
     transition: background 0.3s ease;
 }
 
-button:hover,
-.stButton>button:hover {
-    background-color: #709cf9 !important;
+button:hover, .stButton>button:hover {
+    background-color: #1d4ed8 !important;
 }
 
 /* Dataframe and dashboard */
 .stDataFrame {
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
 .stDownloadButton>button {
@@ -80,4 +77,3 @@ button:hover,
     font-size: 0.95rem;
     font-weight: 400;
 }
-
