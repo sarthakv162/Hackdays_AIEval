@@ -8,14 +8,18 @@ from docx import Document
 import pdfplumber
 import google.generativeai as genai
 
-#Setup
+# ------------------ Setup ------------------
 st.set_page_config(page_title="AIEval - DTU Assignment Evaluator", layout="wide")
+with open("styles.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
 st.title(" AIEval - DTU Assignment Evaluator")
 st.caption("Upload assignment submission and answer key to auto-evaluate using Gemini")
 
 tab1, tab2 = st.tabs([" Evaluate", " Dashboard"])
 results = []
 
+# ------------------ Helper Functions ------------------
 def extract_text_from_file(file_path):
     if file_path.name.endswith(".docx"):
         doc = Document(file_path)
@@ -71,7 +75,7 @@ You are an intelligent assistant helping extract student details.
 From the following assignment submission content, extract only the **student's full name**. If no clear name is found, respond with "Anonymous".
 
 Text:
-{text[:1500]}  # Limiting to first 1500 characters to save token budget.
+{text[:1500]}
 
 Respond in format:
 Name: <full name or Anonymous>
@@ -157,19 +161,16 @@ def adjust_score_for_ai(score_text, ai_verdict, penalty=5):
     match = re.search(r"Score:\s*(\d+(?:\.\d+)?)/10", score_text)
     if not match:
         return score_text
-
     score = float(match.group(1))
-
     verdict_match = re.search(r"Verdict:\s*(Likely AI-generated)", ai_verdict, re.IGNORECASE)
     is_ai_generated = bool(verdict_match)
-
     adjusted = max(score - penalty, 0) if is_ai_generated else score
     result = re.sub(r"Score:\s*\d+(?:\.\d+)?/10", f"Score: {adjusted}/10", score_text)
     if adjusted != score:
         result += f"\n(Note: -{penalty} penalty applied due to AI-generated suspicion.)"
     return result
 
-# Evaluate Tab 
+# ------------------ Evaluate Tab ------------------
 with tab1:
     student_file = st.file_uploader("Upload Student Assignment (.docx or .pdf)", type=["pdf", "docx"])
     answer_key_file = st.file_uploader("Upload Answer Key (.docx or .pdf)", type=["pdf", "docx"])
@@ -217,9 +218,14 @@ with tab1:
                 ai_check = detect_ai_generated_answer(ans, f"Q{q_num}")
                 adjusted_score = adjust_score_for_ai(score_output, ai_check)
 
-                st.markdown(f"---\n### Q{q_num}")
-                st.markdown(f"**Evaluation:**\n\n{adjusted_score.strip()}")
-                st.markdown(f"**AI Detection:**\n\n{ai_check.strip()}")
+                st.markdown(f"""
+                <div style='background-color:#f0f8ff; padding:10px; border-radius:10px;'>
+                <b>Q{q_num} Evaluation:</b><br>{adjusted_score.strip().replace('\n', '<br>')}
+                </div>
+                <div style='background-color:#fff8dc; padding:10px; border-radius:10px; margin-top:10px;'>
+                <b>AI Detection:</b><br>{ai_check.strip().replace('\n', '<br>')}
+                </div>
+                """, unsafe_allow_html=True)
 
                 results.append({
                     "Student": student_name,
@@ -228,7 +234,7 @@ with tab1:
                     "AI Verdict": ai_check.split('\n')[0].replace("Verdict: ", "")
                 })
 
-#  Dashboard Tab 
+# ------------------ Dashboard Tab ------------------
 with tab2:
     st.subheader(" Evaluated Results Dashboard")
     if results:
@@ -243,4 +249,3 @@ with tab2:
         )
     else:
         st.info("No evaluations yet. Submit an assignment to begin.")
-
