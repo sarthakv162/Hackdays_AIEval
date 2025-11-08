@@ -10,7 +10,7 @@ import google.generativeai as genai
 
 # ------------------ Streamlit Setup ------------------
 st.set_page_config(page_title="AIEval - DTU Assignment Evaluator", layout="wide")
-st.title(" AIEval - DTU Assignment Evaluator")
+st.title("📘 AIEval - DTU Assignment Evaluator")
 st.caption("Upload assignment submission and answer key to auto-evaluate using Gemini")
 
 # ------------------ Tabs ------------------
@@ -65,6 +65,28 @@ def segment_by_questions(text):
     for i in range(1, len(parts), 2):
         qmap[parts[i].strip()] = parts[i+1].strip()
     return qmap
+
+def extract_student_name(text):
+    prompt = f"""
+You are an intelligent assistant helping extract student details.
+
+From the following assignment submission content, extract only the **student's full name**. If no clear name is found, respond with "Anonymous".
+
+Text:
+{text[:1500]}  # Limiting to first 1500 characters to save token budget.
+
+Respond in format:
+Name: <full name or Anonymous>
+"""
+    try:
+        response = model.generate_content(prompt)
+        lines = response.text.strip().splitlines()
+        for line in lines:
+            if line.lower().startswith("name:"):
+                return line.split(":", 1)[1].strip()
+        return "Anonymous"
+    except:
+        return "Anonymous"
 
 def score_answer_with_gemini(q_num, q_text, model_ans, student_ans):
     prompt = f"""
@@ -146,7 +168,6 @@ def adjust_score_for_ai(score_text, ai_verdict, penalty=5):
 
 # ------------------ Evaluate Tab ------------------
 with tab1:
-    student_name = st.text_input("Student Name (optional)", value="Anonymous")
     student_file = st.file_uploader("Upload Student Assignment (.docx or .pdf)", type=["pdf", "docx"])
     answer_key_file = st.file_uploader("Upload Answer Key (.docx or .pdf)", type=["pdf", "docx"])
 
@@ -163,6 +184,9 @@ with tab1:
                 ocr = "\n".join(ocr_texts.values())
             full_text = text + "\n" + ocr
             questions = segment_by_questions(full_text)
+
+            # Extract student name
+            student_name = extract_student_name(full_text)
 
             key_text = extract_text_from_file(answer_key_file)
             if answer_key_file.name.endswith(".docx"):
@@ -216,5 +240,4 @@ with tab2:
             mime="text/csv"
         )
     else:
-
         st.info("No evaluations yet. Submit an assignment to begin.")
