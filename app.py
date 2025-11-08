@@ -10,11 +10,11 @@ import google.generativeai as genai
 
 # ------------------ Streamlit Setup ------------------
 st.set_page_config(page_title="AIEval - DTU Assignment Evaluator", layout="wide")
-st.title("📘 AIEval - DTU Assignment Evaluator")
+st.title(" AIEval - DTU Assignment Evaluator")
 st.caption("Upload assignment submission and answer key to auto-evaluate using Gemini")
 
 # ------------------ Tabs ------------------
-tab1, tab2 = st.tabs(["📄 Evaluate", "📊 Dashboard"])
+tab1, tab2 = st.tabs([" Evaluate", " Dashboard"])
 results = []
 
 # ------------------ Helper Functions ------------------
@@ -87,10 +87,10 @@ Be firm but fair:
 
 Question {q_num}: {q_text}
 
-📘 Model Answer:
+ Model Answer:
 {model_ans}
 
-📜 Student Answer:
+ Student Answer:
 {student_ans}
 
 ---
@@ -180,11 +180,11 @@ with tab1:
 
             for q_num, ans in questions.items():
                 if not ans.strip() or len(ans.split()) < 10:
-                    st.info(f"⚠️ Q{q_num} skipped: too short.")
+                    st.info(f" Q{q_num} skipped: too short.")
                     continue
                 model_ans = model_answers.get(q_num)
                 if not model_ans:
-                    st.warning(f"⚠️ Q{q_num} skipped: no model answer.")
+                    st.warning(f" Q{q_num} skipped: no model answer.")
                     continue
 
                 score_output = score_answer_with_gemini(q_num, f"Q{q_num}", model_ans, ans)
@@ -204,16 +204,17 @@ with tab1:
 
 # ------------------ Dashboard Tab ------------------
 with tab2:
-    st.subheader("🧾 Evaluated Results Dashboard")
+    st.subheader(" Evaluated Results Dashboard")
     if results:
         df = pd.DataFrame(results)
         st.dataframe(df)
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button(
-            label="📥 Download CSV",
+            label=" Download CSV",
             data=csv,
             file_name="student_evaluations.csv",
             mime="text/csv"
         )
     else:
+
         st.info("No evaluations yet. Submit an assignment to begin.")
