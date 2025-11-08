@@ -1,72 +1,82 @@
-/* General app styling */
+/* Base layout */
 body {
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8f9fb;
+    background-color: #e2edff;
+    font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
 }
 
-/* Page titles and captions */
+/* Page title */
 h1 {
-    color: #2d2c2c;
-    font-weight: bold;
-}
-
-.stCaption {
-    color: #6c757d;
-    font-style: italic;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.5em;
 }
 
 /* Tabs */
-[data-baseweb="tab"] {
-    background-color: #e9ecef;
-    border-radius: 0.5rem;
-    padding: 8px;
+.block-container {
+    padding: 2rem 3rem;
 }
 
-[data-baseweb="tab"]:hover {
-    background-color: #dee2e6;
+.css-1v0mbdj eczjsme3 {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-[data-baseweb="tab-highlight"] {
-    background-color: #5d97e2 !important;
+/* Headings */
+h2,
+.stMarkdown h2 {
+    color: #1e293b;
+    font-size: 1.6rem;
+    margin-top: 1.2em;
+    margin-bottom: 0.5em;
+}
+
+/* Markdown cards */
+div[style*="background-color:#f0f8ff"],
+div[style*="background-color:#fff8dc"] {
+    font-size: 1rem;
+    color: #1f2937;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+}
+
+/* Buttons */
+button,
+.stButton>button {
+    background-color: #709cf9 !important;
     color: white !important;
-    border-radius: 0.5rem;
-}
-
-/* Markdown styling for results */
-div[data-testid="stMarkdownContainer"] {
-    background-color: #ffffff;
-    padding: 16px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    border-left: 4px solid #5d97e2;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-    border-radius: 8px;
-}
-
-/* Warning and info boxes */
-.stAlert {
     border-radius: 8px !important;
+    padding: 0.6em 1.2em !important;
+    font-weight: 600;
+    border: none;
+    transition: background 0.3s ease;
 }
 
-.stAlert>div {
-    font-size: 0.95rem;
+button:hover,
+.stButton>button:hover {
+    background-color: #709cf9 !important;
 }
 
-/* DataFrame styling */
-[data-testid="stDataFrame"] {
-    background-color: #ffffff;
-    border: 1px solid #ced4da;
-    border-radius: 8px;
-    padding: 8px;
+/* Dataframe and dashboard */
+.stDataFrame {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
-/* Download button */
-button[kind="secondary"] {
-    background-color: #5d97e2 !important;
-    color: white !important;
+.stDownloadButton>button {
+    background-color: #111827 !important;
+    color: #f9fafb !important;
     border-radius: 6px;
+    font-weight: 600;
+    margin-top: 10px;
 }
 
-button[kind="secondary"]:hover {
-    background-color: #5d97e2 !important;
+/* Caption/subtext */
+.css-1cpxqw2 {
+    color: #6b7280 !important;
+    font-size: 0.95rem;
+    font-weight: 400;
 }
