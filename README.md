@@ -1,19 +1,22 @@
 # AIEval – DTU Assignment Evaluator
 
-AIEval is a smart AI-based assignment evaluation system designed to automate and enhance the assessment process at Delhi Technological University (DTU) and similar academic institutions. It accepts both typed and handwritten student submissions, compares them against a professor's answer key, evaluates quality using generative AI models, and detects AI-generated content or plagiarism patterns.
+AIEval is a smart AI-based assignment evaluation system designed to automate and enhance the assessment process at Delhi Technological University (DTU) and similar academic institutions. It accepts typed student submissions, compares them against a professor's answer key, evaluates quality using generative AI models, and detects AI-generated content or plagiarism patterns.
 
+---
 
 ## Features
 
 - Automatic grading using large language models (Gemini)
 - Semantic comparison of student answers to the answer key
 - AI-generated answer detection with penalty logic
-- OCR support for handwritten answers (via image extraction)
+- OCR support for images embedded in DOCX files
 - Flexible support for PDF and DOCX input formats
 - Question segmentation (handles shuffled question order)
 - Per-question scoring, feedback, and AI verdict
 - Downloadable evaluation results in CSV format
 - Streamlit-based interactive web interface
+
+---
 
 ## How It Works
 
@@ -23,7 +26,7 @@ AIEval is a smart AI-based assignment evaluation system designed to automate and
 
 2. **Text Extraction**
    - Typed content is extracted via `pdfplumber` or `python-docx`
-   - Images inside DOCX are parsed and passed through OCR (`pytesseract`)
+   - Images inside DOCX (e.g., scanned pages or figures) are parsed and passed through OCR (`pytesseract`)
 
 3. **Question Parsing**
    - Questions are segmented by regex to handle varied formats (e.g., Q1, 1., 2))
@@ -39,6 +42,8 @@ AIEval is a smart AI-based assignment evaluation system designed to automate and
 6. **Dashboard**
    - Results (Name, Question, Score, AI Verdict) are tabulated and available for CSV export
 
+---
+
 ## Tech Stack
 
 | Component          | Tool / Library                |
@@ -51,6 +56,7 @@ AIEval is a smart AI-based assignment evaluation system designed to automate and
 | Text Matching      | Regex, semantic prompts       |
 | Data Handling      | Pandas                        |
 
+---
 
 ## File Structure
 
@@ -63,6 +69,8 @@ AIEval is a smart AI-based assignment evaluation system designed to automate and
 ├── .devcontainer/      # Dev container setup for VS Code (optional)
 
 ````
+
+---
 
 ## Installation
 
@@ -91,7 +99,7 @@ streamlit run app.py
 
 ## Usage Notes
 
-* The system supports both typed and handwritten assignment PDFs or DOCX files.
+* The system supports typed assignment PDFs or DOCX files.
 * If student answers are out of order, the app re-aligns them by question number.
 * Answer key and student responses should follow a standard format (e.g., `1.`, `2.` etc.) for best results.
 
